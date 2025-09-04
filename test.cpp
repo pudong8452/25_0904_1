@@ -31,7 +31,26 @@ void LookAtTarget(RobloxInstance& camera, const Vectors::Vector3& targetPos) {
     camera.SetCFrame(cf);
 }
 
-
+inline void SetCFrame(sCFrame cf)
+{
+	if (Class() == "Camera")
+	{
+		// 직접 카메라 구조에 쓴다
+		Memory->write<Vectors::Vector3>(address + offsets::CameraPos, { cf.x, cf.y, cf.z });
+		Matrixes::Matrix3x3 rot =
+		{
+			cf.r00, cf.r01, cf.r02,
+			cf.r10, cf.r11, cf.r12,
+			cf.r20, cf.r21, cf.r22
+		};
+		Memory->write<Matrixes::Matrix3x3>(address + offsets::CameraRotation, rot);
+	}
+	else
+	{
+		auto primitive = Memory->read<uintptr_t>(address + offsets::Primitive);
+		Memory->write<sCFrame>(primitive + offsets::CFrame, cf);
+	}
+}
 
 // 가장 가까운 플레이어 Head의 위치를 반환
 Vectors::Vector3 FindClosestPlayerHeadPosition() {
